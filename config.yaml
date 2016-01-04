@@ -1,0 +1,9 @@
+---
+name: p2p
+version: 1
+
+libraries:
+- name: requests
+
+...
+

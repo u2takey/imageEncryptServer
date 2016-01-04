@@ -1,0 +1,24 @@
+<!doctype html>
+<title>flaskr</title>
+<link rel=stylesheet type=text/css href="{{url_for('static',filename='style.css')}}">
+<div class=page>
+	<!--标题-->
+	<h1>Flaskr</h1>
+	<div class=metanav>
+	<!--jinja中可以访问不存在的对象/字典属性或成员-->
+	{% if not session.logged_in %}
+	<!--登入链接-->
+		<a href="{{url_for('login')}}">login</a>
+	{%else%}
+	<!--登出链接-->
+		<a href="{{url_for('logout')}}">logout</a>
+	{%endif%}
+	</div>
+	<!--闪现的消息-->
+	{%for message in get_flashed_messages()%}
+		<div class=flash>{{message}}</div>
+	{%endfor%}
+	<!--可以被子模板中相同名字的块（ body ）替换。也就是说可以被继承-->
+	{%block body%}{%endblock%}
+</div>
+	

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html ng-app="tumi" lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width,height=device-height">
+        <link rel="shortcut icon" type="image/ico" href="/favicon.ico">
+        
+        <title>Gnawiiel</title>
+
+        <!-- Ionic -->
+        <script src="/static/js/ionic.bundle.min.js"></script>
+        <link href="/static/css/ionic.min.css" rel="stylesheet" type="text/css">
+
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+            <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <link href="/static/css/style.css" rel="stylesheet">
+        </head>
+    <body ng-controller="tmCtrl" ng-init="items = []; loadError = false; hasNextPage = true;">
+        <ion-header-bar align-title="center" class="bar-positive">
+            <h1 class="title">图密</h1>
+        </ion-header-bar>
+        <ion-content>
+            <ion-refresher
+                ng-if="items.length > 0 || loadError" pulling-text="下拉刷新"
+                on-refresh="doRefresh()"
+                refreshing-icon="ion-loading-c">
+            </ion-refresher>
+            <ion-list>
+                <ion-item class="item item-avatar-left row-wrap" ng-repeat="item in items">
+                    <img ng-src="/static/img/avatar.jpg">
+                    <div class="img-wrapper">
+                        <img ng-src="/static/img/bg.jpg">
+                        <span class="title" ng-click="jumpTo(item);">
+                            {{ item.title }}
+                        </span>
+                    </div>
+                    <p>
+                        <i class="icon ion-heart calm"> {{ item.pros }} </i>
+                        {{ item.create_time }}
+                    </p>
+                </ion-item>
+            </ion-list>
+            <ion-infinite-scroll
+                on-infinite="loadMore()"
+                distance="5%"
+                icon="ion-loading-c"
+                ng-if="hasNextPage && !loadError">
+        </ion-content>
+    </body>
+    <script type="text/javascript">
+        "use strict"
+
+        angular.module("tumi", ["ionic"])
+        .controller("tmCtrl", function($scope, $http, $ionicScrollDelegate) {
+
+            console.log($http);
+            console.log($ionicScrollDelegate);
+
+            $scope.jumpTo = function (item) {
+                location.href = ["/post?user_id="+item.user_id, "title="+item.title, "pic_url="+item.pic_url].join("&");
+            }
+
+            $scope.loadMore = function () {
+                var url = "/images/get";
+                $http.get(url).success(function (response) {
+                    $scope.items = $scope.items.concat(response.result);
+                    $scope.$broadcast("scroll.infiniteScrollComplete");
+                }).error(function (response) {
+                    $scope.loadError = true;
+                });
+            };
+
+            $scope.doRefresh = function () {
+                var url = "/images/get";
+                $http.get(url).success(function (response) {
+                    $scope.items = response.result;
+                    $scope.$broadcast("scroll.refreshComplete");
+                });
+            };
+
+            $scope.doRefresh();
+
+        });
+
+    </script>
+</html>

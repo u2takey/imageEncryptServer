@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html ng-app="tumi" lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no,width=device-width,height=device-height">
+        <link rel="shortcut icon" type="image/ico" href="/favicon.ico">
+        
+        <title>Gnawiiel</title>
+
+        <!-- Ionic -->
+        <script src="/static/js/jquery-1.9.1.min.js"></script>
+        <script src="/static/js/ionic.bundle.min.js"></script>
+        <link href="/static/css/ionic.min.css" rel="stylesheet" type="text/css">
+
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+            <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script type="text/javascript" src="/static/js/md5.js"></script>
+        <script type="text/javascript" src="/static/js/decodeImg.js"></script>
+
+        <link href="/static/css/style.css" rel="stylesheet">
+        </head>
+    <body ng-controller="tmCtrl" ng-init="">
+        <div class="bar bar-header bar-positive">
+            <button id="home_btn" class="button button-clear icon ion-home">广场</button>
+            <h1 class="title">图密</h1>
+        </div>
+        <div class="scroll-content has-header">
+            <div class="list">
+                <div class="item item-avatar-left">
+                    <img src="{{ pic_url }}">
+                    <span class="post-title">{{ title }}</span>
+                </div>
+                <div class="item-input">
+                    <input id="key" type="text" placeholder="Input password">
+                    <button id="dec-button" class="button button-small button-stable">解密</button>
+                </div>
+                <div class="item item-image">
+                    <img id='source' src="{{ pic_url }}">
+                    <img id='target' style="width:100%;display:none">
+                    <img id='loading' src="/static/img/loading.gif" style="display:none">
+                </div>
+                <div class="item">
+                    <canvas id="canvas" style="display:none"></canvas>
+                </div>
+            </div>
+
+        </div>
+    </body>
+    <script type="text/javascript">
+        "use strict"
+
+
+        angular.module("tumi", ["ionic"])
+        .controller("tmCtrl", function($scope) {});
+
+        function decript(source, target, key){
+            var img = new Image();
+            img.crossOrigin="anonymous";
+            img.src = source.src;
+
+            var canvas = document.getElementById('canvas');
+            var ctx = canvas.getContext('2d');
+
+            img.onload = function() {
+
+                canvas.width= img.naturalWidth;
+                canvas.height= img.naturalHeight;
+                console.log('width = ' + img.naturalWidth + ' height = ' + img.naturalHeight)
+                ctx.drawImage(img, 0, 0);
+                var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); // canvas的长度宽度必须和图像原始的长度宽度一样 
+                var realkey = getKey(key);
+                decodeImg(imageData, realkey, ctx);
+
+                $("#target")[0].src = canvas.toDataURL("image/jpeg");
+
+                $("#loading").hide();
+                $("#target").show();
+            };
+        }
+
+        $('#dec-button').click(function () {
+            $("#source").hide();
+            $("#loading").show();
+
+            var key = $("#key").val();
+            var new_img = decript($("#source")[0], $("#target")[0], key);
+        });
+
+        $("#home_btn").click(function () {
+            location.href = "/ground";
+        });
+
+    </script>
+</html>
